@@ -320,7 +320,16 @@ export function Settings() {
         </Box>
         <Select
           isDisabled={!focused}
-          defaultValue={config.cookiesFromBrowser ?? "off"}
+          // A saved browser can be absent from the options (safari persisted
+          // on a Mac, config copied elsewhere; or a hand-edited value): the
+          // Select doesn't validate defaultValue, so fall back to "off"
+          // rather than initializing to an option that isn't rendered.
+          defaultValue={
+            config.cookiesFromBrowser &&
+            (browsers as readonly string[]).includes(config.cookiesFromBrowser)
+              ? config.cookiesFromBrowser
+              : "off"
+          }
           options={[
             { label: "Off (logged out)", value: "off" },
             ...browsers.map((b) => ({
