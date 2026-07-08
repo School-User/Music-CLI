@@ -4,13 +4,14 @@
 // the UI never has to dump a wall of commands at the user.
 
 import type { PlaylistsDepth, Region, Section } from "./store";
+import type { Keybinds } from "./keybinds";
 
 export interface Hint {
   keys: string;
   label: string;
 }
 
-interface HelpGroup {
+export interface HelpGroup {
   title: string;
   hints: Hint[];
 }
@@ -30,47 +31,64 @@ export function sectionForDigit(input: string): Section | null {
   return SECTION_ORDER[Number(input) - 1] ?? null;
 }
 
-/** The full cheatsheet, shown in the `?` overlay, grouped by intent. */
-export const HELP_GROUPS: HelpGroup[] = [
-  {
-    title: "Navigate",
-    hints: [
-      { keys: "↑ ↓", label: "Move" },
-      { keys: "PgUp PgDn", label: "Jump a page" },
-      { keys: "↵", label: "Open / play" },
-      { keys: "1-5", label: "Jump section" },
-      { keys: "/", label: "Search" },
-      { keys: "d", label: "Delete" },
-      { keys: "t", label: "Rename" },
-      { keys: "tab", label: "Switch pane" },
-      { keys: "esc", label: "Back" },
-      { keys: "q", label: "Quit" },
-    ],
-  },
-  {
-    title: "Player",
-    hints: [
-      { keys: "space", label: "Play / pause" },
-      { keys: "← →", label: "Seek 15s" },
-      { keys: ", .", label: "Seek 5s" },
-      { keys: "0", label: "Restart song" },
-      { keys: "n p", label: "Next / prev" },
-      { keys: "r", label: "Repeat" },
-      { keys: "s", label: "Shuffle" },
-      { keys: "+ -", label: "Volume" },
-    ],
-  },
-  {
-    title: "Downloads",
-    hints: [
-      { keys: "[ ]", label: "Pause / resume all" },
-      { keys: "c", label: "Cancel all" },
-      { keys: "↵", label: "Dismiss done" },
-      { keys: "f", label: "Retry failed" },
-      { keys: "space", label: "Pick: toggle row" },
-    ],
-  },
-];
+/** Join the parts of a key chord, skipping actions left unbound. */
+function chord(...parts: Array<string | undefined>): string {
+  return parts.filter(Boolean).join(" ") || "—";
+}
+
+/**
+ * The full cheatsheet, shown in the `?` overlay, grouped by intent. Player
+ * letters come from the resolved keybinds, so a remapped key shows its real
+ * binding; space and the arrows are structural and always listed.
+ */
+export function helpGroups(kb: Keybinds): HelpGroup[] {
+  return [
+    {
+      title: "Navigate",
+      hints: [
+        { keys: "↑ ↓", label: "Move" },
+        { keys: "PgUp PgDn", label: "Jump a page" },
+        { keys: "↵", label: "Open / play" },
+        { keys: "1-5", label: "Jump section" },
+        { keys: "/", label: "Search" },
+        { keys: "d", label: "Delete" },
+        { keys: "t", label: "Rename" },
+        { keys: "tab", label: "Switch pane" },
+        { keys: "esc", label: "Back" },
+        { keys: "q", label: "Quit" },
+      ],
+    },
+    {
+      title: "Player",
+      hints: [
+        { keys: chord("space", kb.playPause[0]), label: "Play / pause" },
+        {
+          keys: chord("← →", kb.seekBack[0], kb.seekForward[0]),
+          label: "Seek 15s",
+        },
+        {
+          keys: chord(kb.seekBackSmall[0], kb.seekForwardSmall[0]),
+          label: "Seek 5s",
+        },
+        { keys: chord(kb.restart[0]), label: "Restart song" },
+        { keys: chord(kb.next[0], kb.prev[0]), label: "Next / prev" },
+        { keys: chord(kb.repeat[0]), label: "Repeat" },
+        { keys: chord(kb.shuffle[0]), label: "Shuffle" },
+        { keys: chord(kb.volumeUp[0], kb.volumeDown[0]), label: "Volume" },
+      ],
+    },
+    {
+      title: "Downloads",
+      hints: [
+        { keys: "[ ]", label: "Pause / resume all" },
+        { keys: "c", label: "Cancel all" },
+        { keys: "↵", label: "Dismiss done" },
+        { keys: "f", label: "Retry failed" },
+        { keys: "space", label: "Pick: toggle row" },
+      ],
+    },
+  ];
+}
 
 const ALWAYS: Hint = { keys: "?", label: "Keys" };
 // tab is the one movement key the arrows can't cover (they belong to lists

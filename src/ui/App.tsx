@@ -36,9 +36,12 @@ import { footerHints, sectionForDigit } from "./keymap";
 import {
   handlePlayerMode,
   handlePlayerTransport,
+  isPauseKey,
+  isTransportKey,
   playerCanControl,
   shouldBlockPlayerSpace,
 } from "./player-keys";
+import { resolveKeybinds } from "./keybinds";
 import { COLOR, ICON, RULE } from "./theme";
 import { Library as LibrarySection } from "./sections/Library";
 import { Playlists } from "./sections/Playlists";
@@ -390,6 +393,9 @@ export function App({ initialAdd }: { initialAdd?: string } = {}) {
 
   const welcome = config ? !config.firstRunComplete : true;
 
+  // Player keybinds resolve once per config change, not per keypress.
+  const keybinds = useMemo(() => resolveKeybinds(config?.keybinds), [config]);
+
   useInput(
     (input, key) => {
       if (key.ctrl && input === "c") {
@@ -409,30 +415,18 @@ export function App({ initialAdd }: { initialAdd?: string } = {}) {
       }
       const pb = boot?.playback;
       // Player transport runs before pane/section keys so downloads never
-      // steal space/k, j/l, n/p, etc. (text capture already returned above).
+      // steal the pause/seek/skip keys (text capture already returned above).
       if (pb) {
-        // k pauses everywhere space does, including pickers (where space is
-        // busy toggling rows): that's the point of having two pause keys.
-        const transport =
-          input === " " || input === "k"
-            ? input === "k" || !shouldBlockPlayerSpace(captureMode)
-            : playerCanControl(pb) &&
-              (input === "n" ||
-                input === "p" ||
-                input === "0" ||
-                input === "," ||
-                input === "." ||
-                input === "+" ||
-                input === "=" ||
-                input === "-" ||
-                input === "_" ||
-                input === "j" ||
-                input === "l" ||
-                key.leftArrow ||
-                key.rightArrow);
+        // The pause letter (default k) works everywhere space does, including
+        // pickers (where space is busy toggling rows): that's the point of
+        // having two pause keys.
+        const pause = isPauseKey(input, keybinds);
+        const transport = pause
+          ? input !== " " || !shouldBlockPlayerSpace(captureMode)
+          : playerCanControl(pb) && isTransportKey(input, key, keybinds);
         if (transport) {
-          if (input === " " || input === "k") void pb.togglePause();
-          else handlePlayerTransport(pb, input, key);
+          if (pause) void pb.togglePause();
+          else handlePlayerTransport(pb, input, key, keybinds);
           return;
         }
         if (
@@ -441,6 +435,7 @@ export function App({ initialAdd }: { initialAdd?: string } = {}) {
             input,
             playTrack,
             boot?.library.all() ?? [],
+            keybinds,
           )
         ) {
           return;

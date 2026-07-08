@@ -1,5 +1,7 @@
+import { useMemo } from "react";
 import { Box, Text } from "ink";
-import { HELP_GROUPS } from "../keymap";
+import { helpGroups } from "../keymap";
+import { resolveKeybinds } from "../keybinds";
 import { useStore } from "../store";
 import { COLOR, RULE, lerpHex } from "../theme";
 
@@ -7,31 +9,36 @@ import { COLOR, RULE, lerpHex } from "../theme";
  *  reads as part of the brand without shouting over its contents. */
 const CARD_BORDER = lerpHex(COLOR.accent, RULE, 0.55);
 
-// Column geometry derives from the hints themselves, so no key or label ever
-// wraps: each key cell fits its group's longest chord, each column its
-// longest label. Touching keymap.ts re-sizes the card automatically.
 const KEY_GAP = 2;
 const COL_GAP = 2;
-const KEY_W = HELP_GROUPS.map(
-  (g) => Math.max(...g.hints.map((h) => h.keys.length)) + KEY_GAP,
-);
-const COL_W = HELP_GROUPS.map(
-  (g, i) => KEY_W[i]! + Math.max(...g.hints.map((h) => h.label.length)),
-);
-/** Width of the side-by-side card: columns + gaps + padding (2) + border (2). */
-const CARD_W =
-  COL_W.reduce((a, b) => a + b, 0) + (HELP_GROUPS.length - 1) * COL_GAP + 4;
-/** Stacked mode shares one key cell so the groups align down the page. */
-const KEY_W_STACKED = Math.max(...KEY_W);
 
 /**
  * The full keyboard cheatsheet, shown only when the user presses `?`. Rendered
  * as a self-contained card: three columns on a roomy terminal, stacked when
- * narrow so nothing ever overlaps.
+ * narrow so nothing ever overlaps. Column geometry derives from the hints
+ * themselves (which include any remapped player keys), so no key or label
+ * ever wraps and a rebind re-sizes the card automatically.
  */
 export function HelpOverlay() {
-  const { cols, compact } = useStore();
-  const columns = cols >= CARD_W;
+  const { cols, compact, config } = useStore();
+
+  const { groups, keyW, colW, cardW, keyWStacked } = useMemo(() => {
+    const groups = helpGroups(resolveKeybinds(config.keybinds));
+    const keyW = groups.map(
+      (g) => Math.max(...g.hints.map((h) => h.keys.length)) + KEY_GAP,
+    );
+    const colW = groups.map(
+      (g, i) => keyW[i]! + Math.max(...g.hints.map((h) => h.label.length)),
+    );
+    /** Width of the side-by-side card: columns + gaps + padding (2) + border (2). */
+    const cardW =
+      colW.reduce((a, b) => a + b, 0) + (groups.length - 1) * COL_GAP + 4;
+    /** Stacked mode shares one key cell so the groups align down the page. */
+    const keyWStacked = Math.max(...keyW);
+    return { groups, keyW, colW, cardW, keyWStacked };
+  }, [config]);
+
+  const columns = cols >= cardW;
 
   return (
     <Box
@@ -54,19 +61,19 @@ export function HelpOverlay() {
         marginTop={compact ? 0 : 1}
         flexDirection={columns ? "row" : "column"}
       >
-        {HELP_GROUPS.map((group, gi) => (
+        {groups.map((group, gi) => (
           <Box
             key={group.title}
             flexDirection="column"
-            width={columns ? COL_W[gi] : undefined}
-            marginRight={columns && gi < HELP_GROUPS.length - 1 ? COL_GAP : 0}
+            width={columns ? colW[gi] : undefined}
+            marginRight={columns && gi < groups.length - 1 ? COL_GAP : 0}
             marginTop={!columns && gi > 0 ? 1 : 0}
           >
             <Text bold>{group.title}</Text>
             {group.hints.map((h) => (
               <Box key={h.keys + h.label}>
                 <Box
-                  width={columns ? KEY_W[gi] : KEY_W_STACKED}
+                  width={columns ? keyW[gi] : keyWStacked}
                   flexShrink={0}
                 >
                   <Text color={COLOR.alt}>{h.keys}</Text>
