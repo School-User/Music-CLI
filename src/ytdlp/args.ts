@@ -5,6 +5,32 @@ export function audioFormatArgs(): string[] {
   return ["-x"];
 }
 
+/** Browsers yt-dlp can read login cookies from (--cookies-from-browser). */
+export const COOKIE_BROWSERS = [
+  "chrome",
+  "firefox",
+  "edge",
+  "brave",
+  "opera",
+  "vivaldi",
+  "chromium",
+  "safari",
+] as const;
+
+export type CookieBrowser = (typeof COOKIE_BROWSERS)[number];
+
+/**
+ * Args that make yt-dlp reuse the user's browser login, unlocking the
+ * premium-quality streams their account is entitled to (YouTube Premium
+ * 256k AAC, SoundCloud Go+). A value not in COOKIE_BROWSERS (hand-edited
+ * config) is ignored rather than failing every download.
+ */
+export function cookieArgs(browser?: string): string[] {
+  return browser && (COOKIE_BROWSERS as ReadonlyArray<string>).includes(browser)
+    ? ["--cookies-from-browser", browser]
+    : [];
+}
+
 /**
  * Output filename template:
  *   <library>/<Source>/<owner?>/<Playlist or "Singles">/<Artist> - <Title>.<ext>

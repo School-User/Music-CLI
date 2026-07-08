@@ -20,6 +20,11 @@ export interface Config {
   firstRunComplete: boolean;
   /** Check for yt-dlp updates at every launch (staged, applied when idle). */
   ytdlpAutoUpdate?: boolean;
+  /**
+   * Browser whose login cookies downloads reuse (yt-dlp
+   * --cookies-from-browser), for premium-quality streams. Unset = logged out.
+   */
+  cookiesFromBrowser?: string;
 }
 
 /** Drop deprecated keys before returning config or writing it to disk. */
@@ -36,6 +41,7 @@ export const defaultConfig: Config = {
   spotifyProfile: undefined,
   firstRunComplete: false,
   ytdlpAutoUpdate: true,
+  cookiesFromBrowser: undefined,
 };
 
 export async function loadConfig(): Promise<Config> {

@@ -10,6 +10,7 @@ import { openPath } from "../../util/open-path";
 import { wrapStep } from "../move";
 import { displayPath, truncate } from "../../util/format";
 import { persistableHandle } from "../../sources/persist-handle";
+import { COOKIE_BROWSERS } from "../../ytdlp/args";
 import { COLOR, ICON } from "../theme";
 
 type Mode =
@@ -17,6 +18,7 @@ type Mode =
   | "youtube"
   | "soundcloud"
   | "spotify"
+  | "cookies"
   | "wipe-all";
 
 export function Settings() {
@@ -54,6 +56,12 @@ export function Settings() {
         ? `@${config.spotifyHandle}`
         : "not set",
       set: Boolean(config.spotifyHandle),
+    },
+    {
+      value: "cookies",
+      name: "Browser cookies",
+      detail: config.cookiesFromBrowser ?? "off",
+      set: Boolean(config.cookiesFromBrowser),
     },
     {
       value: "open-folder",
@@ -192,6 +200,43 @@ export function Settings() {
       "spotifyHandle",
       "Your Spotify handle",
       config.spotifyHandle,
+    );
+  }
+
+  if (mode === "cookies") {
+    // Safari's cookie store is only readable on macOS; hide it elsewhere so
+    // the picker never offers a browser yt-dlp cannot actually read.
+    const browsers = COOKIE_BROWSERS.filter(
+      (b) => b !== "safari" || process.platform === "darwin",
+    );
+    return frame(
+      "Browser cookies",
+      <Box flexDirection="column">
+        <Box marginBottom={1} flexDirection="column">
+          <Text dimColor>{`${ICON.dot} Downloads reuse the login from the browser you pick`}</Text>
+          <Text dimColor>{`${ICON.dot} Unlocks premium quality (YouTube Premium, SoundCloud Go+)`}</Text>
+          <Text dimColor>{`${ICON.dot} Without a paid account this changes nothing`}</Text>
+          <Text dimColor>{`${ICON.dot} On Windows, close Chrome first: it locks its cookies while open`}</Text>
+        </Box>
+        <Select
+          isDisabled={!focused}
+          defaultValue={config.cookiesFromBrowser ?? "off"}
+          options={[
+            { label: "Off (logged out)", value: "off" },
+            ...browsers.map((b) => ({
+              label: b.charAt(0).toUpperCase() + b.slice(1),
+              value: b,
+            })),
+          ]}
+          onChange={(v) => {
+            setConfig({
+              ...config,
+              cookiesFromBrowser: v === "off" ? undefined : v,
+            });
+            setMode("menu");
+          }}
+        />
+      </Box>,
     );
   }
 
