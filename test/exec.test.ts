@@ -35,7 +35,7 @@ describe("findOnPath", () => {
     base: string,
     run: (dir: string, file: string) => Promise<void>,
   ): Promise<void> {
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "soundcli-which-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "music-cli-which-"));
     const file = path.join(dir, fixtureName(base));
     await fs.writeFile(file, "#!/bin/sh\n");
     if (!isWin) await fs.chmod(file, 0o755);

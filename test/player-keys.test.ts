@@ -2,9 +2,12 @@ import { describe, it, expect } from "vitest";
 import {
   handlePlayerMode,
   handlePlayerTransport,
+  isPauseKey,
+  isTransportKey,
   playerCanControl,
   shouldBlockPlayerSpace,
 } from "../src/ui/player-keys";
+import { resolveKeybinds } from "../src/ui/keybinds";
 import { Playback } from "../src/player/playback";
 import type { Track } from "../src/library/types";
 
@@ -45,6 +48,20 @@ describe("player-keys", () => {
     expect(handlePlayerTransport(p, "k")).toBe(true);
     expect(handlePlayerTransport(p, " ")).toBe(true);
     expect(handlePlayerTransport(p, "q")).toBe(false);
+  });
+
+  it("honors remapped keybinds and drops the replaced default", () => {
+    const p = new Playback("mpv", () => {});
+    const kb = resolveKeybinds({ next: "b", playPause: "x" });
+    expect(handlePlayerTransport(p, "b", undefined, kb)).toBe(true);
+    expect(handlePlayerTransport(p, "n", undefined, kb)).toBe(false);
+    expect(handlePlayerTransport(p, "x", undefined, kb)).toBe(true);
+    expect(handlePlayerTransport(p, "k", undefined, kb)).toBe(false);
+    // Space stays structural no matter what playPause is bound to.
+    expect(handlePlayerTransport(p, " ", undefined, kb)).toBe(true);
+    expect(isPauseKey("x", kb)).toBe(true);
+    expect(isTransportKey("b", undefined, kb)).toBe(true);
+    expect(isTransportKey("n", undefined, kb)).toBe(false);
   });
 
   it("handlePlayerMode toggles repeat and starts shuffle from library", () => {

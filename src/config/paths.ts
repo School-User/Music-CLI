@@ -2,7 +2,11 @@ import os from "node:os";
 import path from "node:path";
 import envPaths from "env-paths";
 
-export const APP_NAME = "soundcli";
+/** Technical id: config/cache/data directory names, IPC pipe prefixes. */
+export const APP_NAME = "music-cli";
+
+/** Display name: the library folder users see inside their Music folder. */
+export const APP_DIR_NAME = "Music CLI";
 
 /** OS-appropriate config / data / cache directories. */
 export const paths = envPaths(APP_NAME, { suffix: "" });
@@ -11,7 +15,7 @@ export const paths = envPaths(APP_NAME, { suffix: "" });
 export const binDir = path.join(paths.cache, "bin");
 
 /** Default location for the downloaded music library. */
-export const defaultLibraryDir = path.join(os.homedir(), "Music", APP_NAME);
+export const defaultLibraryDir = path.join(os.homedir(), "Music", APP_DIR_NAME);
 
 /** Path to the JSON config file. */
 export const configFile = path.join(paths.config, "config.json");

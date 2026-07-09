@@ -38,7 +38,7 @@ function save(name: string, store: Store, node: React.ReactNode): void {
   if (!/\x1b\[/.test(frame)) {
     throw new Error(`${name}: frame has no ANSI colors (FORCE_COLOR didn't take)`);
   }
-  const svg = ansiToSvg(frame, { cols: COLS, title: "soundcli" });
+  const svg = ansiToSvg(frame, { cols: COLS, title: "Music CLI" });
   writeFileSync(join(OUT_DIR, `${name}.svg`), svg);
   console.log(`preview/${name}.svg`);
 }

@@ -35,7 +35,7 @@ const exists = (p: string) =>
   );
 
 async function makeSet(): Promise<{ root: string; dir: string }> {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "soundcli-ren-"));
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "music-cli-ren-"));
   const dir = path.join(root, "SoundCloud", "lumen", "Old Mix");
   await fs.mkdir(dir, { recursive: true });
   await fs.writeFile(path.join(dir, "Lumen - First.m4a"), "1");

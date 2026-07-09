@@ -5,7 +5,7 @@ import {
   expandWindowsEnv,
   resolveDefaultLibraryDir,
 } from "../src/config/music-dir";
-import { APP_NAME, defaultLibraryDir } from "../src/config/paths";
+import { APP_DIR_NAME, defaultLibraryDir } from "../src/config/paths";
 
 /** A realistic `reg query ... /v "My Music"` transcript around `line`. */
 function regOut(line: string): string {
@@ -79,7 +79,7 @@ describe("resolveDefaultLibraryDir", () => {
       ),
     }));
     await expect(resolveDefaultLibraryDir("win32", exec)).resolves.toBe(
-      path.join("C:\\Users\\Test\\OneDrive\\Music", APP_NAME),
+      path.join("C:\\Users\\Test\\OneDrive\\Music", APP_DIR_NAME),
     );
     expect(exec).toHaveBeenCalledOnce();
   });

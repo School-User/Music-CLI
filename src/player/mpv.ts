@@ -55,8 +55,8 @@ export class MpvPlayer extends EventEmitter {
   private static makeIpcPath(): string {
     const tag = `${process.pid}-${Date.now()}`;
     return process.platform === "win32"
-      ? `\\\\.\\pipe\\soundcli-mpv-${tag}`
-      : path.join(os.tmpdir(), `soundcli-mpv-${tag}.sock`);
+      ? `\\\\.\\pipe\\music-cli-mpv-${tag}`
+      : path.join(os.tmpdir(), `music-cli-mpv-${tag}.sock`);
   }
 
   /**

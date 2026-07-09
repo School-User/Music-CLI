@@ -571,7 +571,7 @@ describe("queue copy, banner, overlay, welcome paste", () => {
       title,
       artist: "Artist Name",
       durationSec: 100,
-      filePath: `/music/soundcli/youtube/yourhandle/order-${n}.mp3`,
+      filePath: `/music/music-cli/youtube/yourhandle/order-${n}.mp3`,
       playlist: "ordered set",
       playlistPos,
       owner: "yourhandle",

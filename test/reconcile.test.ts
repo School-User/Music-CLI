@@ -39,7 +39,7 @@ function fakeLibrary(tracks: Track[]): Library {
 
 describe("reconcileLibrary", () => {
   it("prunes missing files, merges duplicates, and keeps one real copy", async () => {
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "soundcli-recon-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "music-cli-recon-"));
     const kept = path.join(dir, "kept.mp3");
     const dup = path.join(dir, "dup.mp3");
     await fs.writeFile(kept, "audio");
@@ -73,7 +73,7 @@ describe("reconcileLibrary", () => {
   });
 
   it("is a no-op for a tidy library", async () => {
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "soundcli-recon-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "music-cli-recon-"));
     const f = path.join(dir, "song.mp3");
     await fs.writeFile(f, "audio");
 
@@ -94,7 +94,7 @@ describe("reconcileLibrary", () => {
   });
 
   it("re-links a file moved within the library instead of pruning it", async () => {
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "soundcli-move-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "music-cli-move-"));
     const moved = path.join(dir, "sub", "song.mp3");
     await fs.mkdir(path.dirname(moved), { recursive: true });
     await fs.writeFile(moved, "audio");
@@ -112,7 +112,7 @@ describe("reconcileLibrary", () => {
   });
 
   it("still prunes a file that is genuinely gone", async () => {
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "soundcli-gone-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "music-cli-gone-"));
     const library = fakeLibrary([
       track({ id: "youtube:a", filePath: path.join(dir, "ghost.mp3") }),
     ]);
@@ -126,7 +126,7 @@ describe("reconcileLibrary", () => {
   });
 
   it("never steals a present track's file when re-linking", async () => {
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "soundcli-claim-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "music-cli-claim-"));
     const present = path.join(dir, "song.mp3");
     await fs.writeFile(present, "audio"); // belongs to a, still on disk
 
@@ -152,7 +152,7 @@ describe("reconcileLibrary", () => {
   });
 
   it("re-links a renamed file by its recorded content size", async () => {
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "soundcli-rename-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "music-cli-rename-"));
     const renamed = path.join(dir, "a totally different name.mp3");
     await fs.writeFile(renamed, "some audio bytes"); // 16 bytes
     const stale = path.join(dir, "original.mp3"); // gone, different basename
@@ -170,7 +170,7 @@ describe("reconcileLibrary", () => {
   });
 
   it("prunes a renamed file when no size was ever recorded", async () => {
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "soundcli-norec-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "music-cli-norec-"));
     await fs.writeFile(path.join(dir, "renamed.mp3"), "audio");
     const library = fakeLibrary([
       track({ id: "youtube:a", filePath: path.join(dir, "old.mp3") }), // no fileSize
@@ -184,7 +184,7 @@ describe("reconcileLibrary", () => {
   });
 
   it("adopts a hand-added file as a local track grouped by its folder", async () => {
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "soundcli-adopt-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "music-cli-adopt-"));
     const f = path.join(dir, "My Mix", "Lumen - Ember.mp3");
     await fs.mkdir(path.dirname(f), { recursive: true });
     await fs.writeFile(f, "audio");
@@ -210,7 +210,7 @@ describe("reconcileLibrary", () => {
   });
 
   it("never adopts a file a download already claims", async () => {
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "soundcli-claimed-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "music-cli-claimed-"));
     const f = path.join(dir, "song.mp3");
     await fs.writeFile(f, "audio");
 
@@ -224,7 +224,7 @@ describe("reconcileLibrary", () => {
   });
 
   it("drops a local shadow once a download lands on the same file", async () => {
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "soundcli-shadow-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "music-cli-shadow-"));
     const f = path.join(dir, "song.mp3");
     await fs.writeFile(f, "audio");
 
@@ -241,7 +241,7 @@ describe("reconcileLibrary", () => {
   });
 
   it("never dedupe-deletes hand-added files, even twins", async () => {
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "soundcli-twins-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "music-cli-twins-"));
     const a = path.join(dir, "one", "Lumen - Ember.mp3");
     const b = path.join(dir, "two", "Lumen - Ember.mp3");
     for (const f of [a, b]) {
@@ -263,7 +263,7 @@ describe("reconcileLibrary", () => {
   });
 
   it("follows a hand-added track moved to another folder", async () => {
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "soundcli-lmove-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "music-cli-lmove-"));
     const before = path.join(dir, "Focus", "song.mp3");
     await fs.mkdir(path.dirname(before), { recursive: true });
     await fs.writeFile(before, "audio");
@@ -288,7 +288,7 @@ describe("reconcileLibrary", () => {
   });
 
   it("re-sorts a re-linked track under its new folder's playlist", async () => {
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "soundcli-resort-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "music-cli-resort-"));
     const moved = path.join(dir, "Chillwave", "song.mp3");
     await fs.mkdir(path.dirname(moved), { recursive: true });
     await fs.writeFile(moved, "audio");
@@ -308,7 +308,7 @@ describe("reconcileLibrary", () => {
   });
 
   it("backfills file sizes for present tracks so future renames re-link", async () => {
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "soundcli-size-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "music-cli-size-"));
     const f = path.join(dir, "song.mp3");
     await fs.writeFile(f, "audio"); // 5 bytes
     const library = fakeLibrary([track({ id: "youtube:a", filePath: f })]);
@@ -321,7 +321,7 @@ describe("reconcileLibrary", () => {
   });
 
   it("heals ownerless strays into the owner whose handle names the folder", async () => {
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "soundcli-heal-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "music-cli-heal-"));
     const liked = path.join(dir, "SoundCloud", "lumen", "Liked Songs");
     await fs.mkdir(liked, { recursive: true });
     const owned = path.join(liked, "nyx - reverie.m4a");
@@ -377,7 +377,7 @@ describe("reconcileLibrary", () => {
   });
 
   it("never heals outside the download layout's owner folders", async () => {
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "soundcli-mixed-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "music-cli-mixed-"));
     const mix = path.join(dir, "Mix");
     await fs.mkdir(mix, { recursive: true });
     const a = path.join(mix, "a.mp3");

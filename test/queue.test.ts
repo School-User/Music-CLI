@@ -131,7 +131,7 @@ describe("download queue dedupe", () => {
   });
 
   it("copies an already-downloaded track into a requested playlist folder", async () => {
-    const root = await fs.mkdtemp(path.join(os.tmpdir(), "soundcli-q-"));
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "music-cli-q-"));
     const liked = path.join(root, "SoundCloud", "owner1", "Liked Songs");
     const src = path.join(liked, "Artist - Song.m4a");
     await fs.mkdir(liked, { recursive: true });
@@ -211,7 +211,7 @@ describe("download queue dedupe", () => {
   });
 
   it("heals a bare id title on a redownload attempt", async () => {
-    const root = await fs.mkdtemp(path.join(os.tmpdir(), "soundcli-q-"));
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "music-cli-q-"));
     const setDir = path.join(root, "SoundCloud", "owner1", "Set A");
     const src = path.join(setDir, "900000006.m4a");
     await fs.mkdir(setDir, { recursive: true });
@@ -280,7 +280,7 @@ describe("download queue dedupe", () => {
   });
 
   it("heals an empty title from the enqueued track without probing", async () => {
-    const root = await fs.mkdtemp(path.join(os.tmpdir(), "soundcli-q-"));
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "music-cli-q-"));
     const setDir = path.join(root, "SoundCloud", "owner1", "Set A");
     const src = path.join(setDir, "900000007.m4a");
     await fs.mkdir(setDir, { recursive: true });
@@ -338,7 +338,7 @@ describe("download queue dedupe", () => {
   });
 
   it("still skips owned in-folder tracks with real titles at enqueue", () => {
-    const root = path.join(os.tmpdir(), "soundcli-fake-root");
+    const root = path.join(os.tmpdir(), "music-cli-fake-root");
     const existing = {
       id: "soundcloud:owner1:sc9",
       source: "soundcloud" as SourceId,
@@ -376,7 +376,7 @@ describe("download queue dedupe", () => {
   });
 
   it("re-stamps a stale playlist position on an in-folder skip", () => {
-    const root = path.join(os.tmpdir(), "soundcli-fake-root");
+    const root = path.join(os.tmpdir(), "music-cli-fake-root");
     const existing = {
       id: "soundcloud:owner1:sc9",
       source: "soundcloud" as SourceId,
@@ -421,7 +421,7 @@ describe("download queue dedupe", () => {
   });
 
   it("leaves the library alone when the in-folder position already matches", () => {
-    const root = path.join(os.tmpdir(), "soundcli-fake-root");
+    const root = path.join(os.tmpdir(), "music-cli-fake-root");
     const existing = {
       id: "soundcloud:owner1:sc9",
       source: "soundcloud" as SourceId,

@@ -289,7 +289,7 @@ async function doEnsure(
     // genuinely retries instead of trusting a binary we know is broken.
     probed = false;
     throw new Error(
-      "The audio engine isn't starting on this computer. Check that your antivirus isn't blocking soundcli, then try again.",
+      "The audio engine isn't starting on this computer. Check that your antivirus isn't blocking Music CLI, then try again.",
     );
   }
   resolvedFfmpeg = ffmpegBinPath();

@@ -50,7 +50,7 @@ export function toolEnv(): NodeJS.ProcessEnv {
 /**
  * Tell yt-dlp to use our own Node binary as its JavaScript runtime. The current
  * YouTube extractor needs a JS runtime and only enables Deno by default; since
- * soundcli already runs on Node, we reuse it and avoid asking the user to
+ * Music CLI already runs on Node, we reuse it and avoid asking the user to
  * install anything extra.
  */
 export function jsRuntimeArgs(): string[] {

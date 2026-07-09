@@ -33,6 +33,6 @@ describe("parseCliArgs", () => {
   });
 
   it("help text mentions the link pass-through", () => {
-    expect(HELP_TEXT).toContain("soundcli <link>");
+    expect(HELP_TEXT).toContain("music-cli <link>");
   });
 });

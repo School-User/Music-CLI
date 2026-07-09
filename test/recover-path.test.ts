@@ -41,7 +41,7 @@ describe("recoverMangledPath", () => {
   it.runIf(win32)(
     "recovers the single matching file in the directory",
     async () => {
-      const dir = await fs.mkdtemp(path.join(os.tmpdir(), "soundcli-rec-"));
+      const dir = await fs.mkdtemp(path.join(os.tmpdir(), "music-cli-rec-"));
       try {
         const real = path.join(dir, "song é mix.opus");
         await fs.writeFile(real, "x");
@@ -54,7 +54,7 @@ describe("recoverMangledPath", () => {
   );
 
   it.runIf(win32)("refuses when more than one file matches", async () => {
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "soundcli-rec-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "music-cli-rec-"));
     try {
       await fs.writeFile(path.join(dir, "song a.opus"), "x");
       await fs.writeFile(path.join(dir, "song b.opus"), "x");
@@ -68,7 +68,7 @@ describe("recoverMangledPath", () => {
 
 describe("findDownloadedFile", () => {
   it("returns the exact path when the file is right where reported", async () => {
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "soundcli-find-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "music-cli-find-"));
     try {
       const real = path.join(dir, "Artist - Song.opus");
       await fs.writeFile(real, "x");
@@ -79,7 +79,7 @@ describe("findDownloadedFile", () => {
   });
 
   it("recovers the same stem under a different audio extension (-x mismatch)", async () => {
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "soundcli-find-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "music-cli-find-"));
     try {
       const real = path.join(dir, "Artist - Song.opus");
       await fs.writeFile(real, "x");
@@ -92,7 +92,7 @@ describe("findDownloadedFile", () => {
   });
 
   it("ignores non-audio siblings with the same stem", async () => {
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "soundcli-find-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "music-cli-find-"));
     try {
       await fs.writeFile(path.join(dir, "Artist - Song.jpg"), "x"); // thumbnail
       const got = await findDownloadedFile(path.join(dir, "Artist - Song.m4a"));
@@ -103,7 +103,7 @@ describe("findDownloadedFile", () => {
   });
 
   it("refuses when two audio files share the stem (never mis-assign)", async () => {
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "soundcli-find-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "music-cli-find-"));
     try {
       await fs.writeFile(path.join(dir, "Song.opus"), "x");
       await fs.writeFile(path.join(dir, "Song.mp3"), "x");
@@ -115,7 +115,7 @@ describe("findDownloadedFile", () => {
   });
 
   it("returns undefined when nothing matches", async () => {
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "soundcli-find-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "music-cli-find-"));
     try {
       const got = await findDownloadedFile(path.join(dir, "Missing.opus"));
       expect(got).toBe(undefined);
@@ -125,7 +125,7 @@ describe("findDownloadedFile", () => {
   });
 
   it("matches by title when yt-dlp dropped the artist from the reported path", async () => {
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "soundcli-find-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "music-cli-find-"));
     try {
       const real = path.join(
         dir,
@@ -143,7 +143,7 @@ describe("findDownloadedFile", () => {
   });
 
   it("matches by title when unicode symbols were stripped from the reported stem", async () => {
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "soundcli-find-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "music-cli-find-"));
     try {
       const real = path.join(
         dir,

@@ -1,4 +1,4 @@
-// Tiny argv parser for the few things soundcli accepts beyond "just open the
+// Tiny argv parser for the few things Music CLI accepts beyond "just open the
 // dashboard". Kept as a pure function so it's trivially testable.
 
 export type CliCommand =
@@ -19,12 +19,12 @@ export function parseCliArgs(argv: string[]): CliCommand {
   return { kind: "run", initialAdd: a };
 }
 
-export const HELP_TEXT = `soundcli, own your music
+export const HELP_TEXT = `Music CLI, own your music
 
 usage
-  soundcli                  open the dashboard
-  soundcli <link>           download that song on launch
-  soundcli --version        print the version
+  music-cli                 open the dashboard
+  music-cli <link>          download that song on launch
+  music-cli --version       print the version
 
 tip: quote links that contain & (e.g. "https://...?list=...")
 `;

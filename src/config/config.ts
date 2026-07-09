@@ -20,6 +20,19 @@ export interface Config {
   firstRunComplete: boolean;
   /** Check for yt-dlp updates at every launch (staged, applied when idle). */
   ytdlpAutoUpdate?: boolean;
+  /**
+   * Browser whose login cookies downloads reuse (yt-dlp
+   * --cookies-from-browser), for premium-quality streams. Unset = logged out.
+   */
+  cookiesFromBrowser?: string;
+  /**
+   * Custom player keybinds: action name -> single-character key (see
+   * ui/keybinds.ts for the actions). Unset actions keep their defaults;
+   * invalid or conflicting entries are ignored at resolve time.
+   */
+  keybinds?: Record<string, string>;
+  /** Color theme name (see ui/theme.ts THEMES). Unset = the default look. */
+  theme?: string;
 }
 
 /** Drop deprecated keys before returning config or writing it to disk. */
@@ -36,6 +49,9 @@ export const defaultConfig: Config = {
   spotifyProfile: undefined,
   firstRunComplete: false,
   ytdlpAutoUpdate: true,
+  cookiesFromBrowser: undefined,
+  keybinds: undefined,
+  theme: undefined,
 };
 
 export async function loadConfig(): Promise<Config> {

@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import path from "node:path";
-import { outputTemplateInFolder } from "../src/ytdlp/args";
+import { cookieArgs, outputTemplateInFolder } from "../src/ytdlp/args";
 
 describe("outputTemplateInFolder", () => {
   it("places yt-dlp's filename inside the given folder without owner", () => {
@@ -31,5 +31,23 @@ describe("outputTemplateInFolder", () => {
   it("sanitizes the folder name", () => {
     const p = outputTemplateInFolder(path.join("music"), "SoundCloud", "my/set:name");
     expect(p).toContain(path.join("music", "SoundCloud", "my_set_name"));
+  });
+});
+
+describe("cookieArgs", () => {
+  it("returns nothing when no browser is configured", () => {
+    expect(cookieArgs(undefined)).toEqual([]);
+    expect(cookieArgs("")).toEqual([]);
+  });
+
+  it("passes a known browser through to yt-dlp", () => {
+    expect(cookieArgs("firefox")).toEqual([
+      "--cookies-from-browser",
+      "firefox",
+    ]);
+  });
+
+  it("ignores a browser yt-dlp does not know (hand-edited config)", () => {
+    expect(cookieArgs("netscape")).toEqual([]);
   });
 });

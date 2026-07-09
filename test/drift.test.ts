@@ -186,7 +186,7 @@ describe("titleFromFilename", () => {
 
 describe("indexAudioByBasename", () => {
   it("groups nested audio by basename and skips non-audio files", async () => {
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "soundcli-scan-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "music-cli-scan-"));
     await fs.mkdir(path.join(dir, "a", "b"), { recursive: true });
     await fs.writeFile(path.join(dir, "a", "song.mp3"), "x");
     await fs.writeFile(path.join(dir, "a", "b", "song.mp3"), "x");
@@ -203,7 +203,7 @@ describe("indexAudioByBasename", () => {
 
   it("returns an empty map for a missing directory", async () => {
     const map = await indexAudioByBasename(
-      path.join(os.tmpdir(), "soundcli-does-not-exist-zzz"),
+      path.join(os.tmpdir(), "music-cli-does-not-exist-zzz"),
     );
     expect(map.size).toBe(0);
   });

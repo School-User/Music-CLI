@@ -25,7 +25,7 @@ class FakeLibrary {
 }
 
 async function makeTree(): Promise<string> {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "soundcli-delete-"));
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "music-cli-delete-"));
   await fs.mkdir(path.join(root, "YouTube", "Singles"), { recursive: true });
   await fs.mkdir(path.join(root, "SoundCloud", "lumen", "Liked Songs"), {
     recursive: true,
@@ -118,8 +118,8 @@ describe("deleteTracks", () => {
   });
 
   it("never prunes folders outside the library root", async () => {
-    const outside = await fs.mkdtemp(path.join(os.tmpdir(), "soundcli-out-"));
-    const root = await fs.mkdtemp(path.join(os.tmpdir(), "soundcli-root-"));
+    const outside = await fs.mkdtemp(path.join(os.tmpdir(), "music-cli-out-"));
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "music-cli-root-"));
     try {
       const lib = new FakeLibrary();
       const f = path.join(outside, "x.m4a");

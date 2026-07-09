@@ -5,6 +5,7 @@ import { resolvedYtDlpPath } from "../bin/ytdlp-fetch";
 import type { Config } from "../config/config";
 import {
   audioFormatArgs,
+  cookieArgs,
   outputTemplate,
   outputTemplateFixed,
   outputTemplateInFolder,
@@ -215,6 +216,7 @@ export async function downloadTrack(
     "3",
     "--embed-metadata",
     "--embed-thumbnail",
+    ...cookieArgs(config.cookiesFromBrowser),
     ...audioFormatArgs(),
     "-o",
     outTpl,
