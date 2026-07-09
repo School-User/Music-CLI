@@ -24,6 +24,11 @@ export interface SyncResult {
   alreadySaved: number;
   /** Per-source failures (bad handle, network); the sweep continues past them. */
   errors: string[];
+  /**
+   * True when the gather signal aborted the sweep (the user canceled the
+   * queue), so an interrupted run is never reported as "up to date".
+   */
+  canceled: boolean;
 }
 
 /** The adapters for every source with a saved handle, in sidebar order. */
@@ -72,6 +77,7 @@ export async function syncSavedSources(
     added: 0,
     alreadySaved: 0,
     errors: [],
+    canceled: false,
   };
   if (targets.length === 0) return result;
 
@@ -114,5 +120,6 @@ export async function syncSavedSources(
       );
     }
   }
+  result.canceled = signal.aborted;
   return result;
 }

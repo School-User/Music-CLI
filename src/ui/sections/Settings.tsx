@@ -513,10 +513,16 @@ export function Settings() {
         ) : (
           <Box flexDirection="column">
             <Text>
-              <Text color={COLOR.good}>{ICON.done} </Text>
-              {syncResult.added > 0
-                ? `Queued ${syncResult.added} new song${syncResult.added === 1 ? "" : "s"}`
-                : "You're up to date, nothing new to download"}
+              {syncResult.canceled ? (
+                <Text color={COLOR.warn}>{ICON.canceled} </Text>
+              ) : (
+                <Text color={COLOR.good}>{ICON.done} </Text>
+              )}
+              {syncResult.canceled
+                ? `Sync canceled${syncResult.added > 0 ? ` after queueing ${syncResult.added} song${syncResult.added === 1 ? "" : "s"}` : ""}`
+                : syncResult.added > 0
+                  ? `Queued ${syncResult.added} new song${syncResult.added === 1 ? "" : "s"}`
+                  : "You're up to date, nothing new to download"}
             </Text>
             {syncResult.alreadySaved > 0 ? (
               <Text dimColor>{`${ICON.dot} ${syncResult.alreadySaved} already in your library`}</Text>
@@ -526,7 +532,7 @@ export function Settings() {
                 {`${ICON.warn} ${syncResult.errors.length} list${syncResult.errors.length === 1 ? "" : "s"} couldn't be checked`}
               </Text>
             ) : null}
-            {syncResult.added > 0 ? (
+            {syncResult.added > 0 && !syncResult.canceled ? (
               <Box marginTop={1}>
                 <Text>
                   <Text color={COLOR.alt}>↵</Text>
