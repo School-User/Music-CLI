@@ -10,13 +10,35 @@ You only have to do this once. Music CLI handles the rest itself.
 
 1. **Install Node.js** from [nodejs.org](https://nodejs.org): download the installer and click **Next** until it finishes. It's the one piece of software Music CLI runs on.
 2. **Open your terminal.** On **Windows**, press the Windows key, type `terminal`, and press Enter. On a **Mac**, press `Cmd + Space`, type `terminal`, and press Enter. A plain window opens, and that's all you need to get going.
-3. **Start Music CLI.** Copy the line below, paste it into the terminal, and press **Enter**:
+3. **Install Music CLI.** Copy the line for your system, paste it into the terminal, and press **Enter**:
+
+   macOS / Linux:
 
    ```sh
-   npx music-cli
+   curl -fsSL https://raw.githubusercontent.com/School-User/soundcli/main/install.sh | sh
+   ```
+
+   Windows (PowerShell):
+
+   ```powershell
+   irm https://raw.githubusercontent.com/School-User/soundcli/main/install.ps1 | iex
+   ```
+
+4. **Start it.** From now on, opening your library is just:
+
+   ```sh
+   music-cli
    ```
 
 From there Music CLI takes over, downloading the few tools it needs and setting everything up on its own.
+
+Prefer plain npm? The installer is just a convenience around:
+
+```sh
+npm install -g git+https://github.com/School-User/soundcli.git
+```
+
+Re-run either command to update to the latest version, and `npm uninstall -g music-cli` removes it.
 
 ## The first run
 
