@@ -48,6 +48,7 @@ try {
 
     Write-Host "Installing the music-cli command ..."
     $tgz = (npm pack --pack-destination $tmp --loglevel=error | Select-Object -Last 1)
+    if ($LASTEXITCODE -ne 0) { Pop-Location; Fail "npm pack failed (see output above)." }
     Pop-Location
     npm install -g --no-audit --no-fund --loglevel=error (Join-Path $tmp $tgz)
     if ($LASTEXITCODE -ne 0) { Fail "npm install -g failed (see output above)." }

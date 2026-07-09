@@ -31,7 +31,8 @@ command -v curl >/dev/null 2>&1 || fail "curl is required to download Music CLI.
 command -v tar >/dev/null 2>&1 || fail "tar is required to unpack Music CLI."
 
 tmp=$(mktemp -d)
-trap 'rm -rf "$tmp"' EXIT INT TERM
+trap 'rm -rf "$tmp"' EXIT
+trap 'exit 130' INT TERM
 
 printf 'Downloading Music CLI (github.com/%s) ...\n' "$REPO"
 curl -fsSL "https://github.com/${REPO}/archive/refs/heads/${BRANCH}.tar.gz" | tar -xz -C "$tmp"
@@ -44,7 +45,12 @@ cd "$src"
 npm install --no-audit --no-fund --loglevel=error
 
 printf 'Installing the music-cli command ...\n'
-tgz=$(npm pack --pack-destination "$tmp" --loglevel=error | tail -n 1)
+# No pipe here: POSIX sh has no pipefail, so `npm pack | tail` would hide a
+# pack failure behind tail's exit 0 and break the install with an empty path.
+npm pack --pack-destination "$tmp" --loglevel=error > "$tmp/pack_output" || \
+  fail "npm pack failed (see output above)."
+tgz=$(tail -n 1 "$tmp/pack_output")
+[ -n "$tgz" ] || fail "npm pack produced no output."
 npm install -g --no-audit --no-fund --loglevel=error "$tmp/$tgz"
 
 printf '\nDone. Start it anytime with: music-cli\n'
