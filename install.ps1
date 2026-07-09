@@ -2,14 +2,14 @@
 #
 #   irm https://raw.githubusercontent.com/School-User/soundcli/main/install.ps1 | iex
 #
-# Checks for Node.js 22+, downloads this repository, builds it (the package's
-# prepare script runs the bundler during npm install), and installs the
-# resulting package globally so `music-cli` is on your PATH.
+# Downloads the prebuilt single-file bundle from the latest GitHub release and
+# puts a `music-cli` command on your PATH. No npm, no build step. Node.js 22+
+# still has to be installed, since the bundle runs on Node.
 $ErrorActionPreference = "Stop"
 
 $repo = "School-User/soundcli"
-$branch = "main"
 $minNode = 22
+$assetUrl = "https://github.com/$repo/releases/latest/download/music-cli.js"
 
 function Fail($message) {
     Write-Host "error: $message" -ForegroundColor Red
@@ -25,37 +25,27 @@ if ($major -lt $minNode) {
     Fail "Node.js v$minNode+ is required (you have $(node -v)). Update at https://nodejs.org, then re-run this script."
 }
 
-if (-not (Get-Command npm -ErrorAction SilentlyContinue)) {
-    Fail "npm was not found (it normally ships with Node.js). Reinstall Node.js from https://nodejs.org."
-}
+$dir = Join-Path $env:LOCALAPPDATA "Music CLI"
+New-Item -ItemType Directory -Force -Path $dir | Out-Null
+$js = Join-Path $dir "music-cli.js"
 
-$tmp = Join-Path ([System.IO.Path]::GetTempPath()) ("music-cli-install-" + [System.Guid]::NewGuid().ToString("N"))
-New-Item -ItemType Directory -Path $tmp | Out-Null
-
+Write-Host "Downloading Music CLI ..."
 try {
-    Write-Host "Downloading Music CLI (github.com/$repo) ..."
-    $zip = Join-Path $tmp "music-cli.zip"
-    Invoke-WebRequest -Uri "https://github.com/$repo/archive/refs/heads/$branch.zip" -OutFile $zip
-    Expand-Archive -Path $zip -DestinationPath $tmp
-
-    $src = Get-ChildItem -Path $tmp -Directory | Select-Object -First 1
-    if (-not $src) { Fail "the downloaded archive looked empty." }
-
-    Write-Host "Building (this runs once and takes a minute) ..."
-    Push-Location $src.FullName
-    npm install --no-audit --no-fund --loglevel=error
-    if ($LASTEXITCODE -ne 0) { Pop-Location; Fail "npm install failed (see output above)." }
-
-    Write-Host "Installing the music-cli command ..."
-    $tgz = (npm pack --pack-destination $tmp --loglevel=error | Select-Object -Last 1)
-    if ($LASTEXITCODE -ne 0) { Pop-Location; Fail "npm pack failed (see output above)." }
-    Pop-Location
-    npm install -g --no-audit --no-fund --loglevel=error (Join-Path $tmp $tgz)
-    if ($LASTEXITCODE -ne 0) { Fail "npm install -g failed (see output above)." }
-
-    Write-Host ""
-    Write-Host "Done. Start it anytime with: music-cli"
+    Invoke-WebRequest -Uri $assetUrl -OutFile $js -UseBasicParsing
+} catch {
+    Fail "download failed. Make sure a release has been published at https://github.com/$repo/releases"
 }
-finally {
-    Remove-Item -Recurse -Force $tmp -ErrorAction SilentlyContinue
+
+# A .cmd shim so typing `music-cli` runs the bundle through node from anywhere.
+$cmd = Join-Path $dir "music-cli.cmd"
+Set-Content -Path $cmd -Value "@node `"%~dp0music-cli.js`" %*" -Encoding Ascii
+
+# Put the install dir on the user PATH if it isn't already there.
+$userPath = [Environment]::GetEnvironmentVariable("Path", "User")
+if (($userPath -split ';') -notcontains $dir) {
+    [Environment]::SetEnvironmentVariable("Path", "$userPath;$dir", "User")
+    Write-Host "Added $dir to your PATH (open a new terminal to pick it up)."
 }
+
+Write-Host ""
+Write-Host "Done. Start it anytime with: music-cli"

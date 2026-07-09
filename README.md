@@ -30,9 +30,11 @@ You only have to do this once. Music CLI handles the rest itself.
    music-cli
    ```
 
-From there Music CLI takes over, downloading the few tools it needs and setting everything up on its own.
+The installer just downloads one prebuilt file — no npm, no build step — and puts a `music-cli` command on your PATH. From there Music CLI takes over, downloading the few tools it needs and setting everything up on its own.
 
-Prefer to do it by hand? The installer is just a convenience around:
+Re-run the installer anytime to update to the latest version. To remove it, delete the `music-cli` file the installer printed (macOS/Linux: `~/.local/bin/music-cli`; Windows: the `Music CLI` folder in `%LOCALAPPDATA%`).
+
+Prefer to build it yourself instead of downloading a binary? That path uses npm:
 
 ```sh
 git clone https://github.com/School-User/soundcli.git
@@ -40,8 +42,6 @@ cd soundcli
 npm install
 npm install -g "$(npm pack)"
 ```
-
-Re-run the installer anytime to update to the latest version, and `npm uninstall -g music-cli` removes it.
 
 ## The first run
 
@@ -98,6 +98,25 @@ Before opening a pull request:
 - Check types: `npm run typecheck`
 - Write commits in Conventional Commits style (`fix:`, `feat:`, `docs:`, `chore:`, `refactor:`)
 - Keep the UI surface minimal: one contextual footer plus the `?` cheatsheet, never a wall of commands
+
+### Publishing a release (maintainers)
+
+The one-line installers download a prebuilt bundle from the latest GitHub
+release, so a release has to exist for them to work. Cutting one is automated:
+push a version tag and the **Release standalone binary** workflow builds the
+single-file bundle (`npm run build:standalone`) and attaches it to the release.
+
+```sh
+git tag v1.0.0
+git push origin v1.0.0
+```
+
+You can also run that workflow by hand from the repo's **Actions** tab (it takes
+a tag name as input). To build the bundle locally for testing:
+
+```sh
+npm run build:standalone   # → dist-standalone/music-cli.js (self-contained)
+```
 
 Then open a PR against `main` with a short note on what changed and why.
 
