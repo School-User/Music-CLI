@@ -32,13 +32,16 @@ You only have to do this once. Music CLI handles the rest itself.
 
 From there Music CLI takes over, downloading the few tools it needs and setting everything up on its own.
 
-Prefer plain npm? The installer is just a convenience around:
+Prefer to do it by hand? The installer is just a convenience around:
 
 ```sh
-npm install -g git+https://github.com/School-User/soundcli.git
+git clone https://github.com/School-User/soundcli.git
+cd soundcli
+npm install
+npm install -g "$(npm pack)"
 ```
 
-Re-run either command to update to the latest version, and `npm uninstall -g music-cli` removes it.
+Re-run the installer anytime to update to the latest version, and `npm uninstall -g music-cli` removes it.
 
 ## The first run
 
