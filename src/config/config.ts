@@ -31,6 +31,8 @@ export interface Config {
    * invalid or conflicting entries are ignored at resolve time.
    */
   keybinds?: Record<string, string>;
+  /** Color theme name (see ui/theme.ts THEMES). Unset = the default look. */
+  theme?: string;
 }
 
 /** Drop deprecated keys before returning config or writing it to disk. */
@@ -49,6 +51,7 @@ export const defaultConfig: Config = {
   ytdlpAutoUpdate: true,
   cookiesFromBrowser: undefined,
   keybinds: undefined,
+  theme: undefined,
 };
 
 export async function loadConfig(): Promise<Config> {

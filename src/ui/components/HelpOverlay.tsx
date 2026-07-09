@@ -5,10 +5,6 @@ import { resolveKeybinds } from "../keybinds";
 import { useStore } from "../store";
 import { COLOR, RULE, lerpHex } from "../theme";
 
-/** The card border: divider gray warmed toward the accent, so the cheatsheet
- *  reads as part of the brand without shouting over its contents. */
-const CARD_BORDER = lerpHex(COLOR.accent, RULE, 0.55);
-
 const KEY_GAP = 2;
 const COL_GAP = 2;
 
@@ -21,6 +17,10 @@ const COL_GAP = 2;
  */
 export function HelpOverlay() {
   const { cols, compact, config } = useStore();
+  // The card border: divider gray warmed toward the accent, so the cheatsheet
+  // reads as part of the brand without shouting over its contents. Derived at
+  // render so it follows the active theme.
+  const cardBorder = lerpHex(COLOR.accent, RULE, 0.55);
 
   const { groups, keyW, colW, cardW, keyWStacked } = useMemo(() => {
     const groups = helpGroups(resolveKeybinds(config.keybinds));
@@ -45,7 +45,7 @@ export function HelpOverlay() {
       flexDirection="column"
       alignSelf="flex-start"
       borderStyle="round"
-      borderColor={CARD_BORDER}
+      borderColor={cardBorder}
       paddingX={columns ? 1 : 2}
       paddingY={compact ? 0 : 1}
     >

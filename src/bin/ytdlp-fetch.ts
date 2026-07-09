@@ -64,7 +64,7 @@ export async function downloadYtDlp(
 
 /**
  * Promote a staged update to the live path. Runs before anything spawns the
- * binary, so this process never holds it; a second running soundcli instance
+ * binary, so this process never holds it; a second running Music CLI instance
  * can (EBUSY/EPERM on Windows), in which case the old binary stays and we
  * retry next launch. The rename dance keeps a working binary on disk at
  * every instant.
@@ -144,7 +144,7 @@ export async function downloadVerified(
   // Leave no torn exe behind: it would pass the exists check next launch.
   await remove(dest);
   throw new Error(
-    "yt-dlp downloaded but won't start on this computer. Check that your antivirus isn't blocking soundcli, then try again.",
+    "yt-dlp downloaded but won't start on this computer. Check that your antivirus isn't blocking Music CLI, then try again.",
   );
 }
 

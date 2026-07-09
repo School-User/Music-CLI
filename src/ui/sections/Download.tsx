@@ -165,11 +165,13 @@ const MARK: Partial<Record<QueueItem["status"], string>> = {
   downloading: ICON.play,
 };
 
-const MARK_COLOR: Partial<Record<QueueItem["status"], string>> = {
-  downloading: COLOR.accent,
-  done: COLOR.good,
-  error: COLOR.bad,
-  paused: COLOR.warn,
+// Palette slots, not hex values: resolved through COLOR at render time so the
+// marks follow the active theme.
+const MARK_COLOR: Partial<Record<QueueItem["status"], keyof typeof COLOR>> = {
+  downloading: "accent",
+  done: "good",
+  error: "bad",
+  paused: "warn",
 };
 
 /**
@@ -252,7 +254,7 @@ function QueueRow({ item }: { item: QueueItem }) {
   return (
     <Box>
       <Text
-        color={MARK_COLOR[item.status]}
+        color={MARK_COLOR[item.status] && COLOR[MARK_COLOR[item.status]!]}
         dimColor={quiet || !MARK_COLOR[item.status]}
       >
         {`${MARK[item.status] ?? ICON.pending} `}
@@ -416,7 +418,7 @@ function QueueView() {
         // means the downloader broke, not the tracks; say so once, calmly.
         <Box marginBottom={1}>
           <Text color={COLOR.warn} wrap="truncate-end">
-            {`${ICON.warn} ${s.failingSource} downloads keep failing  ${ICON.dot}  the downloader may be out of date  ${ICON.dot}  restart soundcli to update it`}
+            {`${ICON.warn} ${s.failingSource} downloads keep failing  ${ICON.dot}  the downloader may be out of date  ${ICON.dot}  restart Music CLI to update it`}
           </Text>
         </Box>
       ) : null}

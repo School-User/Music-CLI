@@ -93,7 +93,7 @@ export async function fileExists(
   return exists;
 }
 
-/** Audio extensions soundcli writes; the rescan skips artwork, json, and .part. */
+/** Audio extensions Music CLI writes; the rescan skips artwork, json, and .part. */
 export const AUDIO_EXTS = new Set([
   ".mp3",
   ".m4a",

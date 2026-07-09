@@ -1,7 +1,7 @@
 import { Box, Text, useInput } from "ink";
 import { useStore, type Section } from "../store";
 import { wrapStep } from "../move";
-import { ACCENT_RAMP, COLOR, ICON } from "../theme";
+import { COLOR, ICON } from "../theme";
 
 interface NavItem {
   key: Section;
@@ -41,9 +41,9 @@ export function Sidebar() {
         return (
           <Box key={item.key} marginTop={pinned ? 1 : 0}>
             {selected ? (
-              // The lit edge: the marker takes the ramp's sunlit end while the
-              // label stays brand flame, a subtle two-tone glow.
-              <Text color={ACCENT_RAMP[1]} bold={focused}>{`${ICON.bar} `}</Text>
+              // The lit edge: the marker takes the ramp's bright end while the
+              // label stays the brand accent, a subtle two-tone glow.
+              <Text color={COLOR.amber} bold={focused}>{`${ICON.bar} `}</Text>
             ) : (
               <Text>{"  "}</Text>
             )}

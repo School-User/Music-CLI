@@ -1,6 +1,6 @@
 import path from "node:path";
 import { execa } from "execa";
-import { APP_NAME, defaultLibraryDir } from "./paths";
+import { APP_DIR_NAME, defaultLibraryDir } from "./paths";
 
 /** Minimal exec shape, so tests can inject a fake `reg query`. */
 type ExecLike = (
@@ -62,7 +62,7 @@ export async function resolveDefaultLibraryDir(
     const music = expandWindowsEnv(raw, process.env);
     // A %VAR% that didn't expand can't be a real path.
     if (music.includes("%")) return defaultLibraryDir;
-    return path.join(music, APP_NAME);
+    return path.join(music, APP_DIR_NAME);
   } catch {
     return defaultLibraryDir;
   }

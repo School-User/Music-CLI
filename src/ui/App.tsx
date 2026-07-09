@@ -42,7 +42,7 @@ import {
   shouldBlockPlayerSpace,
 } from "./player-keys";
 import { resolveKeybinds } from "./keybinds";
-import { COLOR, ICON, RULE } from "./theme";
+import { COLOR, ICON, RULE, applyTheme } from "./theme";
 import { Library as LibrarySection } from "./sections/Library";
 import { Playlists } from "./sections/Playlists";
 import { History } from "./sections/History";
@@ -173,6 +173,9 @@ export function App({ initialAdd }: { initialAdd?: string } = {}) {
     booting.current = true;
     void (async () => {
       const cfg = await loadConfig();
+      // Tint the live palette before anything meaningful renders, so the
+      // saved theme never flashes the default colors.
+      applyTheme(cfg.theme);
       // A link passed on the command line means the user has self-onboarded:
       // skip the welcome tour and drop straight into downloading it (the
       // saveConfig below persists the flag).

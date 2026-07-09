@@ -1,6 +1,6 @@
 import { memo, useMemo } from "react";
 import { Text } from "ink";
-import { ACCENT_RAMP, lerpHex } from "../theme";
+import { COLOR, lerpHex } from "../theme";
 
 /**
  * A progress fill that sweeps the accent ramp left→right, so progress reads
@@ -19,14 +19,16 @@ export const GradientBar = memo(function GradientBar({
   const filled = Math.round((clamped / 100) * width);
   // The per-cell lerp only depends on the integer cell count, so ticks that
   // land on the same cell reuse the same elements instead of re-lerping.
+  // COLOR is read at render (not captured at module load) so the fill follows
+  // a theme switch; the memo keys on the endpoints for the same reason.
   const cells = useMemo(() => {
     const last = Math.max(1, width - 1);
     return Array.from({ length: filled }, (_, i) => (
-      <Text key={i} color={lerpHex(ACCENT_RAMP[0], ACCENT_RAMP[1], i / last)}>
+      <Text key={i} color={lerpHex(COLOR.accent, COLOR.amber, i / last)}>
         █
       </Text>
     ));
-  }, [filled, width]);
+  }, [filled, width, COLOR.accent, COLOR.amber]);
   return (
     <Text>
       {cells}

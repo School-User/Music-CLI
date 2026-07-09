@@ -2,7 +2,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { Box, Text, useInput } from "ink";
-import { Select } from "@inkjs/ui";
+import { Select, Spinner } from "@inkjs/ui";
 import { useStore } from "../store";
 import { TextField } from "../components/TextField";
 import { Header } from "../components/Header";
@@ -20,7 +20,8 @@ import {
   resolveKeybinds,
   type PlayerAction,
 } from "../keybinds";
-import { COLOR, ICON } from "../theme";
+import { syncSavedSources, savedAdapters, type SyncResult } from "../../sources/sync";
+import { COLOR, DEFAULT_THEME, ICON, applyTheme, themeNames } from "../theme";
 
 type Mode =
   | "menu"
@@ -29,11 +30,20 @@ type Mode =
   | "spotify"
   | "cookies"
   | "keybinds"
+  | "appearance"
+  | "sync"
   | "wipe-all";
 
 export function Settings() {
-  const { config, setConfig, library, queue, region, setCaptureMode } =
-    useStore();
+  const {
+    config,
+    setConfig,
+    library,
+    queue,
+    region,
+    setCaptureMode,
+    setSection,
+  } = useStore();
   const focused = region === "content";
   const [mode, setMode] = useState<Mode>("menu");
   const [cursor, setCursor] = useState(0);
@@ -42,6 +52,10 @@ export function Settings() {
   const [kbCursor, setKbCursor] = useState(0);
   const [capturing, setCapturing] = useState<PlayerAction | null>(null);
   const [kbError, setKbError] = useState<string | null>(null);
+  // Download-new-songs page: the live status line while sweeping, and the
+  // final tally once the sweep ends (null while it is still running).
+  const [syncMsg, setSyncMsg] = useState("");
+  const [syncResult, setSyncResult] = useState<SyncResult | null>(null);
 
   const entries: {
     value: Mode | "open-folder";
@@ -86,6 +100,21 @@ export function Settings() {
           ? `${customBindCount(config.keybinds)} custom`
           : "default",
       set: customBindCount(config.keybinds) > 0,
+    },
+    {
+      value: "appearance",
+      name: "Appearance",
+      detail: config.theme ?? DEFAULT_THEME,
+      set: Boolean(config.theme),
+    },
+    {
+      value: "sync",
+      name: "Download new songs",
+      detail:
+        savedAdapters(config).length > 0
+          ? "Check saved sources now"
+          : "no sources saved",
+      set: savedAdapters(config).length > 0,
     },
     {
       value: "open-folder",
@@ -217,6 +246,35 @@ export function Settings() {
       setKbError(null);
     },
     { isActive: focused && mode === "keybinds" && capturing !== null },
+  );
+
+  // Opening the sync page starts the sweep; it keeps running if the user
+  // leaves (the queue owns the downloads by then, and its gather signal is
+  // the cancel path), so only the status display is torn down here.
+  useEffect(() => {
+    if (mode !== "sync") return;
+    let alive = true;
+    setSyncResult(null);
+    setSyncMsg("Checking saved sources…");
+    void syncSavedSources(config, queue, (p) => {
+      if (alive) setSyncMsg(p.message);
+    }).then((r) => {
+      if (alive) setSyncResult(r);
+    });
+    return () => {
+      alive = false;
+    };
+    // Re-running on every config change would restart the sweep mid-flight;
+    // the page snapshot of config/queue at open time is the right input.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mode]);
+
+  // Sync page: ↵ jumps to the Download queue to watch the batch come in.
+  useInput(
+    (_input, key) => {
+      if (key.return) setSection("download");
+    },
+    { isActive: focused && mode === "sync" },
   );
 
   // Every settings sub-page is rendered through frame(), so the back hint lives
@@ -404,6 +462,84 @@ export function Settings() {
     );
   }
 
+  if (mode === "appearance") {
+    return frame(
+      "Appearance",
+      <Box flexDirection="column">
+        <Box marginBottom={1} flexDirection="column">
+          <Text dimColor>{`${ICON.dot} Pick a color theme; it applies instantly`}</Text>
+          <Text>
+            {"  "}
+            <Text color={COLOR.accent}>accent</Text>{" "}
+            <Text color={COLOR.alt}>keys</Text>{" "}
+            <Text color={COLOR.good}>playing</Text>{" "}
+            <Text color={COLOR.warn}>warn</Text>{" "}
+            <Text color={COLOR.bad}>error</Text>
+          </Text>
+        </Box>
+        <Select
+          isDisabled={!focused}
+          defaultValue={config.theme ?? DEFAULT_THEME}
+          options={themeNames().map((n) => ({
+            label: n === DEFAULT_THEME ? `${n} (default)` : n,
+            value: n,
+          }))}
+          onChange={(v) => {
+            applyTheme(v);
+            setConfig({
+              ...config,
+              theme: v === DEFAULT_THEME ? undefined : v,
+            });
+            setMode("menu");
+          }}
+        />
+      </Box>,
+    );
+  }
+
+  if (mode === "sync") {
+    const noSources = savedAdapters(config).length === 0;
+    return frame(
+      "Download new songs",
+      <Box flexDirection="column">
+        {noSources ? (
+          <Text dimColor>
+            {`${ICON.dot} No sources saved yet — add a handle above, or use the Download section`}
+          </Text>
+        ) : syncResult === null ? (
+          <Box>
+            <Spinner label={` ${syncMsg}`} />
+          </Box>
+        ) : (
+          <Box flexDirection="column">
+            <Text>
+              <Text color={COLOR.good}>{ICON.done} </Text>
+              {syncResult.added > 0
+                ? `Queued ${syncResult.added} new song${syncResult.added === 1 ? "" : "s"}`
+                : "You're up to date, nothing new to download"}
+            </Text>
+            {syncResult.alreadySaved > 0 ? (
+              <Text dimColor>{`${ICON.dot} ${syncResult.alreadySaved} already in your library`}</Text>
+            ) : null}
+            {syncResult.errors.length > 0 ? (
+              <Text color={COLOR.warn}>
+                {`${ICON.warn} ${syncResult.errors.length} list${syncResult.errors.length === 1 ? "" : "s"} couldn't be checked`}
+              </Text>
+            ) : null}
+            {syncResult.added > 0 ? (
+              <Box marginTop={1}>
+                <Text>
+                  <Text color={COLOR.alt}>↵</Text>
+                  <Text dimColor> Watch the downloads</Text>
+                </Text>
+              </Box>
+            ) : null}
+          </Box>
+        )}
+      </Box>,
+    );
+  }
+
   if (mode === "wipe-all") {
     return frame(
       "Wipe all songs?",
@@ -430,7 +566,7 @@ export function Settings() {
               queue.clearAll();
               const tracked = library.all().map((t) => t.filePath);
               await library.clear();
-              // Remove the folders soundcli creates (catches completed files,
+              // Remove the folders Music CLI creates (catches completed files,
               // .part partials, orphans, and empty dirs), plus any tracked files
               // that live outside the current music folder (e.g. an old folder).
               const targets = [

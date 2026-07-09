@@ -4,28 +4,96 @@
 
 import { defaultTheme, extendTheme } from "@inkjs/ui";
 
-export const COLOR = {
-  /** Brand accent: deep flame orange. Used for focus, cursors, and progress. */
-  accent: "#ff6a3d",
-  /** Warm off-white for prominent body text, so it doesn't read as harsh
-   *  default-white against the warm palette. */
-  text: "#ece4da",
-  /** Secondary accent (honey brass) for paths, inline keys, and group
-   *  headers: a warm gold-sand that reads as hardware next to the flame
-   *  accent, sandier than `warn` so warning banners still read hotter. */
-  alt: "#e0b380",
-  /** Now-playing / success: soft mint-green, kept clearly apart from the warm
-   *  accent so the playing marker reads at a glance. */
-  good: "#86d6a2",
-  /** Warnings (rate limits, empty results): golden amber, nudged yellow so it
-   *  reads as caution rather than melting into the orange accent. */
-  warn: "#f0c560",
-  /** Failures: rose, pushed pink/cool so errors never read as the accent. */
-  bad: "#ee7d92",
-  /** Sunlit amber: the bright end of the accent ramp, and the saves-to path
-   *  on the Welcome screen. */
-  amber: "#ffb163",
-} as const;
+/** The palette slots every theme must fill. */
+export interface Palette {
+  /** Brand accent. Used for focus, cursors, and progress. */
+  accent: string;
+  /** Prominent body text, softened so it doesn't read as harsh default-white. */
+  text: string;
+  /** Secondary accent for paths, inline keys, and group headers. */
+  alt: string;
+  /** Now-playing / success, kept clearly apart from the accent. */
+  good: string;
+  /** Warnings (rate limits, empty results). */
+  warn: string;
+  /** Failures, pushed away from the accent so errors never read as brand. */
+  bad: string;
+  /** The bright end of the accent ramp (glow sweeps, saves-to path). */
+  amber: string;
+}
+
+/**
+ * Selectable themes (Settings -> Appearance). "ember" is the classic look;
+ * the rest re-tint the accent family while keeping good/warn/bad readable
+ * and semantically apart from the accent.
+ */
+export const THEMES: Record<string, Palette> = {
+  ember: {
+    accent: "#ff6a3d",
+    text: "#ece4da",
+    alt: "#e0b380",
+    good: "#86d6a2",
+    warn: "#f0c560",
+    bad: "#ee7d92",
+    amber: "#ffb163",
+  },
+  ocean: {
+    accent: "#4da3ff",
+    text: "#dfe8f2",
+    alt: "#8fc7d9",
+    good: "#7fd8b0",
+    warn: "#e8c46a",
+    bad: "#ef7d9b",
+    amber: "#7cc4ff",
+  },
+  forest: {
+    accent: "#5fbf6e",
+    text: "#e4ecdf",
+    alt: "#b8c98a",
+    good: "#8fd8c5",
+    warn: "#e5c25f",
+    bad: "#e07d88",
+    amber: "#a3d977",
+  },
+  violet: {
+    accent: "#a983ff",
+    text: "#e9e4f2",
+    alt: "#c6a3d9",
+    good: "#84d6ae",
+    warn: "#e8c46a",
+    bad: "#f07d92",
+    amber: "#d0a3ff",
+  },
+  mono: {
+    accent: "#d8d8d8",
+    text: "#e8e8e8",
+    alt: "#a8a8a8",
+    good: "#9fd8a9",
+    warn: "#d8c88f",
+    bad: "#d88f9b",
+    amber: "#f2f2f2",
+  },
+};
+
+export const DEFAULT_THEME = "ember";
+
+/**
+ * The live palette every component reads at render time. Mutated in place by
+ * applyTheme so a theme switch shows up on the next render without threading
+ * a palette prop through every component. Nothing may capture these values at
+ * module load (derive inside render or via accentRamp()).
+ */
+export const COLOR: Palette = { ...THEMES[DEFAULT_THEME]! };
+
+/** Swap the live palette. Unknown names (hand-edited config) keep the default. */
+export function applyTheme(name?: string): void {
+  Object.assign(COLOR, THEMES[name ?? DEFAULT_THEME] ?? THEMES[DEFAULT_THEME]!);
+}
+
+/** Theme names in menu order (default first). */
+export function themeNames(): string[] {
+  return Object.keys(THEMES);
+}
 
 /**
  * Glyphs known to render in Windows Terminal, macOS Terminal, and common Linux
@@ -69,14 +137,14 @@ export function lerpHex(a: string, b: string, t: number): string {
 }
 
 /**
- * The accent's glow ramp (deep flame → sunlit amber). Progress fills and the
- * wordmark sweep this same pair, so the orange reads as one warm material
- * throughout the app instead of a flat fill.
+ * The accent's glow ramp (accent → its bright end). Progress fills and the
+ * wordmark sweep this same pair, so the accent reads as one material
+ * throughout the app instead of a flat fill. A function, not a constant:
+ * it must follow the live palette when the theme changes.
  */
-export const ACCENT_RAMP: readonly [string, string] = [
-  COLOR.accent,
-  COLOR.amber,
-];
+export function accentRamp(): readonly [string, string] {
+  return [COLOR.accent, COLOR.amber];
+}
 
 /**
  * @inkjs/ui theme override so its Select and Spinner share our orange accent

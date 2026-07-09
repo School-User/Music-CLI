@@ -1,10 +1,10 @@
 {
-  "name": "sndcli",
-  "version": "1.3.0",
-  "description": "Own your music. Download your YouTube, SoundCloud, and Spotify libraries to your computer and play them offline, all from your terminal.",
+  "name": "music-cli",
+  "version": "1.0.0",
+  "description": "Music CLI: download your YouTube, SoundCloud, and Spotify libraries to your computer and play them offline, all from your terminal. A themeable remake of soundcli.",
   "type": "module",
   "bin": {
-    "sndcli": "./dist/index.js"
+    "music-cli": "./dist/index.js"
   },
   "files": [
     "dist",
@@ -35,15 +35,18 @@
     "spotify",
     "offline"
   ],
-  "author": "bairon",
+  "author": "School-User",
+  "contributors": [
+    "bairon (original soundcli author)"
+  ],
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/baairon/soundcli.git"
+    "url": "git+https://github.com/School-User/soundcli.git"
   },
-  "homepage": "https://github.com/baairon/soundcli#readme",
+  "homepage": "https://github.com/School-User/soundcli#readme",
   "bugs": {
-    "url": "https://github.com/baairon/soundcli/issues"
+    "url": "https://github.com/School-User/soundcli/issues"
   },
   "publishConfig": {
     "access": "public"

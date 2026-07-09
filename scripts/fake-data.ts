@@ -28,7 +28,7 @@ function track(
     title,
     artist,
     durationSec,
-    filePath: `/music/soundcli/${source}/${OWNER}/song-${n}.mp3`,
+    filePath: `/music/music-cli/${source}/${OWNER}/song-${n}.mp3`,
     playlist,
     owner: OWNER,
     // Descending so library order (newest first) is stable.
@@ -152,7 +152,7 @@ export function makeFakePlayback(
 /** A complete Store over the fakes; geometry matches an 80x24 terminal. */
 export function makeStore(overrides: Partial<Store> = {}): Store {
   return {
-    config: { ...defaultConfig, firstRunComplete: true, libraryDir: "~/Music/soundcli" },
+    config: { ...defaultConfig, firstRunComplete: true, libraryDir: "~/Music/Music CLI" },
     setConfig: () => {},
     library: makeFakeLibrary(),
     binaries: { ffmpeg: "", ffprobe: "", ytDlp: "", mpv: null },
