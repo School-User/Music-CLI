@@ -10,7 +10,7 @@ if (!mpv) process.exit(1);
 
 const file =
   process.argv[2] ??
-  "C:\\Users\\dustin\\Music\\soundcli\\YouTube\\Singles\\jawed - Me at the zoo.mp3";
+  "C:\\Users\\dustin\\Music\\music-cli\\YouTube\\Singles\\jawed - Me at the zoo.mp3";
 
 const track: Track = {
   id: "t",

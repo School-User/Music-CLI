@@ -73,7 +73,7 @@ describe("needsFfFetch", () => {
 
 describe("downloadFfTool", () => {
   it("gunzips the asset to the final path via temp + rename", async () => {
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "soundcli-ff-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "music-cli-ff-"));
     const dest = path.join(dir, "ffmpeg-test.bin");
     const payload = Buffer.from("not really ffmpeg, but bytes all the same");
     const urls: string[] = [];
@@ -94,7 +94,7 @@ describe("downloadFfTool", () => {
   });
 
   it("surfaces a clear error on a failed response", async () => {
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "soundcli-ff-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "music-cli-ff-"));
     const dest = path.join(dir, "ffprobe-test.bin");
     const impl: FetchImpl = async () =>
       new Response("missing", { status: 404, statusText: "Not Found" });
@@ -109,7 +109,7 @@ describe("downloadFfTool", () => {
   });
 
   it("sends a User-Agent on the GitHub fetch", async () => {
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "soundcli-ff-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "music-cli-ff-"));
     const dest = path.join(dir, "ffmpeg-ua.bin");
     let seenUA: unknown;
     const impl: FetchImpl = async (_url, init) => {

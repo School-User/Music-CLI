@@ -114,7 +114,7 @@ describe("resolvedYtDlpPath", () => {
 
 describe("downloadYtDlp", () => {
   it("sends a User-Agent on the GitHub fetch", async () => {
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "soundcli-yt-"));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), "music-cli-yt-"));
     const dest = path.join(dir, "yt-dlp-ua");
     let seenUA: unknown;
     const impl: FetchImpl = async (_url, init) => {

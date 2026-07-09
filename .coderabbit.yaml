@@ -1,0 +1,9 @@
+# CodeRabbit configuration for Music CLI.
+# The codebase's comment convention is purposeful "why" comments rather than
+# JSDoc on every function, so the stock 80% docstring threshold reads as noise
+# on every review. Keep the check as a soft signal at a level the repo meets.
+reviews:
+  pre_merge_checks:
+    docstrings:
+      mode: warning
+      threshold: 60

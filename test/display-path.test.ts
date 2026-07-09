@@ -12,14 +12,14 @@ describe("displayPath", () => {
   it("collapses the home prefix on windows, case-insensitively", () => {
     setPlatform("win32");
     expect(
-      displayPath("C:\\Users\\Dustin\\Music\\soundcli", "c:\\users\\dustin"),
-    ).toBe("~\\Music\\soundcli");
+      displayPath("C:\\Users\\Dustin\\Music\\music-cli", "c:\\users\\dustin"),
+    ).toBe("~\\Music\\music-cli");
   });
 
   it("collapses the home prefix on unix, case-sensitively", () => {
     setPlatform("linux");
-    expect(displayPath("/home/kip/Music/soundcli", "/home/kip")).toBe(
-      "~/Music/soundcli",
+    expect(displayPath("/home/kip/Music/music-cli", "/home/kip")).toBe(
+      "~/Music/music-cli",
     );
     // Unix paths are case-sensitive for real: no fold off win32.
     expect(displayPath("/home/Kip/Music", "/home/kip")).toBe("/home/Kip/Music");
@@ -36,8 +36,8 @@ describe("displayPath", () => {
   });
 
   it("passes already-tilde'd paths through", () => {
-    expect(displayPath("~/Music/soundcli", "/home/kip")).toBe(
-      "~/Music/soundcli",
+    expect(displayPath("~/Music/music-cli", "/home/kip")).toBe(
+      "~/Music/music-cli",
     );
   });
 
