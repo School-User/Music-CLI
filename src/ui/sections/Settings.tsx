@@ -31,6 +31,7 @@ type Mode =
   | "cookies"
   | "keybinds"
   | "appearance"
+  | "format"
   | "sync"
   | "wipe-all";
 
@@ -106,6 +107,12 @@ export function Settings() {
       name: "Appearance",
       detail: config.theme ?? DEFAULT_THEME,
       set: Boolean(config.theme),
+    },
+    {
+      value: "format",
+      name: "Download format",
+      detail: config.downloadVideo ? "video" : "audio",
+      set: Boolean(config.downloadVideo),
     },
     {
       value: "sync",
@@ -489,6 +496,34 @@ export function Settings() {
             setConfig({
               ...config,
               theme: v === DEFAULT_THEME ? undefined : v,
+            });
+            setMode("menu");
+          }}
+        />
+      </Box>,
+    );
+  }
+
+  if (mode === "format") {
+    return frame(
+      "Download format",
+      <Box flexDirection="column">
+        <Box marginBottom={1} flexDirection="column">
+          <Text dimColor>{`${ICON.dot} Audio: music files (the default)`}</Text>
+          <Text dimColor>{`${ICON.dot} Video: full videos, playlists included`}</Text>
+          <Text dimColor>{`${ICON.dot} Videos open in your device's video player on play`}</Text>
+        </Box>
+        <Select
+          isDisabled={!focused}
+          defaultValue={config.downloadVideo ? "video" : "audio"}
+          options={[
+            { label: "Audio (music)", value: "audio" },
+            { label: "Video", value: "video" },
+          ]}
+          onChange={(v) => {
+            setConfig({
+              ...config,
+              downloadVideo: v === "video" ? true : undefined,
             });
             setMode("menu");
           }}

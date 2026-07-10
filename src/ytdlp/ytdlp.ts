@@ -4,7 +4,7 @@ import { ffmpegPath, jsRuntimeArgs, toolEnv } from "../bin/binaries";
 import { resolvedYtDlpPath } from "../bin/ytdlp-fetch";
 import type { Config } from "../config/config";
 import {
-  audioFormatArgs,
+  mediaFormatArgs,
   cookieArgs,
   outputTemplate,
   outputTemplateFixed,
@@ -217,7 +217,7 @@ export async function downloadTrack(
     "--embed-metadata",
     "--embed-thumbnail",
     ...cookieArgs(config.cookiesFromBrowser),
-    ...audioFormatArgs(),
+    ...mediaFormatArgs(config.downloadVideo),
     "-o",
     outTpl,
     "--progress-template",

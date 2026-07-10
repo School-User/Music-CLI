@@ -18,6 +18,27 @@ function track(id: string): Track {
   };
 }
 
+describe("Playback of a video file", () => {
+  it("opens externally even when mpv is available", async () => {
+    const opened: string[] = [];
+    // mpv path is set, but a video must not go to mpv (audio-only, --no-video).
+    const p = new Playback("mpv", (f) => opened.push(f));
+    const vid: Track = {
+      id: "v",
+      source: "youtube",
+      sourceTrackId: "v",
+      title: "V",
+      filePath: "/tmp/v.mp4",
+      addedAt: new Date().toISOString(),
+    };
+    await p.play(vid);
+    expect(opened).toEqual(["/tmp/v.mp4"]);
+    expect(p.getState().engine).toBe("external");
+    expect(p.getState().canControl).toBe(false);
+    expect(p.getState().track?.id).toBe("v");
+  });
+});
+
 describe("Playback without mpv (external engine)", () => {
   it("plays a track and advances/rewinds through the list", async () => {
     const opened: string[] = [];
