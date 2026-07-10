@@ -30,9 +30,9 @@ You only have to do this once. Music CLI handles the rest itself.
    music-cli
    ```
 
-The installer just downloads one prebuilt file — no npm, no build step — and puts a `music-cli` command on your PATH. From there Music CLI takes over, downloading the few tools it needs and setting everything up on its own.
+The installer just downloads one prebuilt file — no npm, no build step. On macOS and Linux it installs to `~/.local/bin` (set `MUSIC_CLI_BIN` to pick a different directory); if that folder isn't already on your `PATH`, the installer prints the one line to add to your shell profile so `music-cli` works from anywhere — follow it, then open a new terminal. From there Music CLI takes over, downloading the few tools it needs and setting everything up on its own.
 
-Re-run the installer anytime to update to the latest version. To remove it, delete the `music-cli` file the installer printed (macOS/Linux: `~/.local/bin/music-cli`; Windows: the `Music CLI` folder in `%LOCALAPPDATA%`).
+Re-run the installer anytime to update to the latest version. To remove it, delete the `music-cli` file the installer printed (macOS/Linux: `~/.local/bin/music-cli`, or wherever you pointed `MUSIC_CLI_BIN`; Windows: the `Music CLI` folder in `%LOCALAPPDATA%`).
 
 Prefer to build it yourself instead of downloading a binary? That path uses npm:
 
