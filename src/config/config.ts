@@ -33,6 +33,12 @@ export interface Config {
   keybinds?: Record<string, string>;
   /** Color theme name (see ui/theme.ts THEMES). Unset = the default look. */
   theme?: string;
+  /**
+   * Download full video (best video+audio merged to mp4) instead of extracting
+   * audio. Applies to single tracks and whole playlists. Videos open in the
+   * system player on play, since a terminal can't show video. Unset = audio.
+   */
+  downloadVideo?: boolean;
 }
 
 /** Drop deprecated keys before returning config or writing it to disk. */
@@ -52,6 +58,7 @@ export const defaultConfig: Config = {
   cookiesFromBrowser: undefined,
   keybinds: undefined,
   theme: undefined,
+  downloadVideo: undefined,
 };
 
 export async function loadConfig(): Promise<Config> {

@@ -1,8 +1,13 @@
 import path from "node:path";
 
-/** yt-dlp audio extraction args: always extract best-available, no re-encode. */
-export function audioFormatArgs(): string[] {
-  return ["-x"];
+/**
+ * yt-dlp format args. Audio mode extracts best-available audio with no
+ * re-encode (`-x`). Video mode takes best video+audio and merges to mp4 (yt-dlp
+ * falls back to mkv when the streams can't fit mp4), so the file is a real,
+ * widely-playable video rather than an audio extraction.
+ */
+export function mediaFormatArgs(video?: boolean): string[] {
+  return video ? ["-f", "bv*+ba/b", "--merge-output-format", "mp4"] : ["-x"];
 }
 
 /** Browsers yt-dlp can read login cookies from (--cookies-from-browser). */

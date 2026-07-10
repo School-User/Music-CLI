@@ -31,7 +31,11 @@ import { Rule } from "./components/Rule";
 import { Footer } from "./components/Footer";
 import { HelpOverlay } from "./components/HelpOverlay";
 import { Logo } from "./components/Logo";
-import { LOGO_LINES } from "./logo";
+import {
+  LOGO_LINES,
+  LOGO_LINES_COMPACT,
+  logoWidth,
+} from "./logo";
 import { footerHints, sectionForDigit } from "./keymap";
 import {
   handlePlayerMode,
@@ -58,6 +62,10 @@ interface Boot {
   playback: Playback;
   history: PlayHistory;
 }
+
+/** Column widths of the two wordmarks, so the header picks one that fits. */
+const LOGO_WIDTH = logoWidth(LOGO_LINES);
+const COMPACT_LOGO_WIDTH = logoWidth(LOGO_LINES_COMPACT);
 
 function Content({ section }: { section: Section }) {
   switch (section) {
@@ -131,15 +139,22 @@ export function App({ initialAdd }: { initialAdd?: string } = {}) {
   // drop their idle search hint, so every freed row goes to the song list. The
   // now-playing divider holds until even shorter terminals force it out.
   const compact = rows < 20;
-  // The block wordmark stays in every height, compact included, so the app
-  // never reads as bare chrome; it's width-gated only. Below 34 cols there is
-  // no logo (no text fallback), reserving a row only for the transient mpv
-  // line, and the thin top rule alone marks the header.
-  const showLogo = cols >= 34;
+  // The wordmark stays in every height so the app never reads as bare chrome;
+  // it's width-gated. The full block logo needs room (and would eat a short
+  // terminal's rows), so it shows only when wide AND not compact; narrower or
+  // shorter terminals fall back to the small two-row wordmark; below the small
+  // one's width there is no logo, and the thin top rule alone marks the header.
+  const logoLines =
+    cols >= LOGO_WIDTH + 2 && !compact
+      ? LOGO_LINES
+      : cols >= COMPACT_LOGO_WIDTH + 2
+        ? LOGO_LINES_COMPACT
+        : null;
+  const showLogo = logoLines !== null;
   const showTopRule = compact || showLogo;
   const showDivider = rows >= 12;
   const showFooter = !compact;
-  const brandHeight = showLogo ? LOGO_LINES.length : mpvStatus ? 1 : 0;
+  const brandHeight = logoLines ? logoLines.length : mpvStatus ? 1 : 0;
   const chrome =
     brandHeight +
     (showTopRule ? 1 : 0) +
@@ -598,7 +613,7 @@ export function App({ initialAdd }: { initialAdd?: string } = {}) {
   if (!store) {
     return (
       <Box flexDirection="column" paddingX={1} paddingY={1}>
-        {showLogo ? <Logo /> : null}
+        {logoLines ? <Logo lines={logoLines} /> : null}
         <Box marginTop={1}>
           <Spinner label={status} />
         </Box>
@@ -612,7 +627,7 @@ export function App({ initialAdd }: { initialAdd?: string } = {}) {
     <StoreContext.Provider value={store}>
       <Box flexDirection="column" paddingX={1}>
         <Box justifyContent="space-between">
-          {showLogo ? <Logo /> : null}
+          {logoLines ? <Logo lines={logoLines} /> : null}
           {mpvStatus ? <Text dimColor>{mpvStatus}</Text> : null}
         </Box>
         {showTopRule ? <Rule width={ruleWidth} /> : null}

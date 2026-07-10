@@ -63,8 +63,9 @@ export async function recoverMangledPath(
   return path.join(path.dirname(filepath), matches[0]!);
 }
 
-/** Audio containers yt-dlp can leave behind after `-x` extraction. */
-const AUDIO_EXTS = new Set([
+/** Media containers yt-dlp can leave behind: audio (after `-x`) or, in video
+ *  mode, the merged video file whose extension differs from the printed one. */
+const MEDIA_EXTS = new Set([
   ".opus",
   ".m4a",
   ".mp3",
@@ -74,6 +75,11 @@ const AUDIO_EXTS = new Set([
   ".flac",
   ".wav",
   ".aac",
+  ".mp4",
+  ".mkv",
+  ".mov",
+  ".m4v",
+  ".avi",
 ]);
 
 /** True if `filePath` exists (a file we can stat). */
@@ -160,7 +166,7 @@ export async function findDownloadedFile(
   // (2) Same stem, any audio extension: covers the `-x` extension mismatch.
   const target = stemOf(base);
   const audioMatches = entries.filter((e) => {
-    if (!AUDIO_EXTS.has(path.extname(e).toLowerCase())) return false;
+    if (!MEDIA_EXTS.has(path.extname(e).toLowerCase())) return false;
     const s = stemOf(e);
     return win ? looseMatch(s, target) : s === target;
   });
@@ -170,7 +176,7 @@ export async function findDownloadedFile(
   const { title, artist } = hints;
   if (title) {
     const titleMatches = entries.filter((e) => {
-      if (!AUDIO_EXTS.has(path.extname(e).toLowerCase())) return false;
+      if (!MEDIA_EXTS.has(path.extname(e).toLowerCase())) return false;
       return titleMatchesStem(stemOf(e), title, artist);
     });
     if (titleMatches.length === 1) return path.join(dir, titleMatches[0]!);

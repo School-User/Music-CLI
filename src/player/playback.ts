@@ -4,6 +4,7 @@ import type { Track } from "../library/types";
 import { MpvPlayer } from "./mpv";
 import { onEndedDecision, shuffledOrder, stepIndex } from "./order";
 import { openPath } from "../util/open-path";
+import { isVideoFile } from "../util/media";
 
 export type Engine = "mpv" | "external";
 /**
@@ -258,6 +259,15 @@ export class Playback extends EventEmitter {
       loading: Boolean(this.mpvPath),
     });
     if (newList) this.rebuildOrder();
+
+    // A video can't play inside the terminal; hand it to the system player even
+    // when mpv is available (our mpv runs audio-only, --no-video). The row still
+    // shows as now-playing, but transport controls stay off (external engine).
+    if (isVideoFile(track.filePath)) {
+      this.update({ engine: "external", canControl: false, loading: false });
+      this.opener(track.filePath);
+      return;
+    }
 
     const m = this.ensureMpv();
     if (m) {

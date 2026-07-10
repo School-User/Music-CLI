@@ -2,6 +2,7 @@ import { promises as fs, type Dirent } from "node:fs";
 import path from "node:path";
 import { SOURCE_LABELS, type SourceId, type Track } from "./types";
 import { sanitizeName } from "../ytdlp/args";
+import { VIDEO_EXTS } from "../util/media";
 
 /** A set of library entries that are all the same song. */
 export interface DuplicateGroup {
@@ -105,6 +106,9 @@ export const AUDIO_EXTS = new Set([
   ".webm",
 ]);
 
+/** Audio + video: everything the library rescan should re-link and adopt. */
+export const MEDIA_EXTS = new Set([...AUDIO_EXTS, ...VIDEO_EXTS]);
+
 /**
  * Walk `dir` recursively and group every audio file by its basename, so a track
  * whose file was moved or reorganized inside the library can be re-found by
@@ -128,7 +132,7 @@ export async function indexAudioByBasename(
         await walk(full);
       } else if (
         e.isFile() &&
-        AUDIO_EXTS.has(path.extname(e.name).toLowerCase())
+        MEDIA_EXTS.has(path.extname(e.name).toLowerCase())
       ) {
         const arr = byBasename.get(e.name);
         if (arr) arr.push(full);
