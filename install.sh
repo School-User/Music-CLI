@@ -3,14 +3,15 @@
 #
 #   curl -fsSL https://raw.githubusercontent.com/School-User/soundcli/main/install.sh | sh
 #
-# Checks for Node.js 22+, downloads this repository, builds it (the package's
-# prepare script runs the bundler during npm install), and installs the
-# resulting package globally so `music-cli` is on your PATH.
+# Downloads the prebuilt single-file bundle from the latest GitHub release and
+# drops it on your PATH. No npm, no build step. Node.js 22+ still has to be
+# installed, since the bundle runs on Node.
 set -eu
 
 REPO="School-User/soundcli"
-BRANCH="main"
 MIN_NODE=22
+ASSET_URL="https://github.com/${REPO}/releases/latest/download/music-cli"
+BIN_DIR="${MUSIC_CLI_BIN:-$HOME/.local/bin}"
 
 fail() {
   printf 'error: %s\n' "$*" >&2
@@ -24,33 +25,33 @@ major=$(node -p 'process.versions.node.split(".")[0]')
 [ "$major" -ge "$MIN_NODE" ] || fail \
   "Node.js v${MIN_NODE}+ is required (you have $(node -v)). Update at https://nodejs.org, then re-run this script."
 
-command -v npm >/dev/null 2>&1 || fail \
-  "npm was not found (it normally ships with Node.js). Reinstall Node.js from https://nodejs.org."
-
 command -v curl >/dev/null 2>&1 || fail "curl is required to download Music CLI."
-command -v tar >/dev/null 2>&1 || fail "tar is required to unpack Music CLI."
 
-tmp=$(mktemp -d)
-trap 'rm -rf "$tmp"' EXIT
+mkdir -p "$BIN_DIR" || fail "could not create $BIN_DIR."
+dest="$BIN_DIR/music-cli"
+
+tmp=$(mktemp)
+trap 'rm -f "$tmp"' EXIT
 trap 'exit 130' INT TERM
 
-printf 'Downloading Music CLI (github.com/%s) ...\n' "$REPO"
-curl -fsSL "https://github.com/${REPO}/archive/refs/heads/${BRANCH}.tar.gz" | tar -xz -C "$tmp"
+printf 'Downloading Music CLI ...\n'
+curl -fSL --proto '=https' --tlsv1.2 "$ASSET_URL" -o "$tmp" || fail \
+  "download failed. Make sure a release has been published at https://github.com/${REPO}/releases"
 
-src=$(find "$tmp" -mindepth 1 -maxdepth 1 -type d | head -n 1)
-[ -n "$src" ] || fail "the downloaded archive looked empty."
+# A real bundle starts with a Node shebang; guard against saving an error page.
+head -n 1 "$tmp" | grep -q '^#!' || fail "the downloaded file doesn't look like Music CLI (no release asset yet?)."
 
-printf 'Building (this runs once and takes a minute) ...\n'
-cd "$src"
-npm install --no-audit --no-fund --loglevel=error
+chmod +x "$tmp"
+mv "$tmp" "$dest"
 
-printf 'Installing the music-cli command ...\n'
-# No pipe here: POSIX sh has no pipefail, so `npm pack | tail` would hide a
-# pack failure behind tail's exit 0 and break the install with an empty path.
-npm pack --pack-destination "$tmp" --loglevel=error > "$tmp/pack_output" || \
-  fail "npm pack failed (see output above)."
-tgz=$(tail -n 1 "$tmp/pack_output")
-[ -n "$tgz" ] || fail "npm pack produced no output."
-npm install -g --no-audit --no-fund --loglevel=error "$tmp/$tgz"
-
-printf '\nDone. Start it anytime with: music-cli\n'
+printf '\nInstalled to %s\n' "$dest"
+case ":$PATH:" in
+  *":$BIN_DIR:"*)
+    printf 'Start it anytime with: music-cli\n'
+    ;;
+  *)
+    printf 'Add this line to your shell profile, then restart the terminal:\n'
+    printf '  export PATH="%s:$PATH"\n' "$BIN_DIR"
+    printf 'After that, start it with: music-cli\n'
+    ;;
+esac

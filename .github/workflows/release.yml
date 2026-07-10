@@ -1,0 +1,50 @@
+name: Release standalone binary
+
+# Builds the single-file bundle and publishes it to a GitHub Release so the
+# curl installers can download it. Runs when a version tag is pushed, or on
+# demand from the Actions tab.
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to create (e.g. v1.0.0)"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run typecheck
+
+      - run: npm test
+
+      - run: npm run build:standalone
+
+      # Publish under two names: `music-cli` (unix, has a node shebang) and
+      # `music-cli.js` (what the Windows installer downloads).
+      - name: Stage release assets
+        run: |
+          cp dist-standalone/music-cli.js music-cli
+          cp dist-standalone/music-cli.js music-cli.js
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.inputs.tag || github.ref_name }}
+          files: |
+            music-cli
+            music-cli.js

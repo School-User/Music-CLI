@@ -31,14 +31,24 @@ process.on("uncaughtException", (err) => {
   process.exit(1);
 });
 
+// Replaced with the real version string at build time in the standalone bundle,
+// which ships as one file with no package.json beside it. Every other build
+// leaves it undefined and reads the version from disk (see resolveVersion).
+declare const __APP_VERSION__: string | undefined;
+
+/** The app's version: the build-time constant if present, else package.json. */
+async function resolveVersion(): Promise<string> {
+  if (typeof __APP_VERSION__ === "string") return __APP_VERSION__;
+  const { createRequire } = await import("node:module");
+  const require = createRequire(import.meta.url);
+  return (require("../package.json") as { version: string }).version;
+}
+
 async function main(): Promise<void> {
   const command = parseCliArgs(process.argv.slice(2));
 
   if (command.kind === "version") {
-    const { createRequire } = await import("node:module");
-    const require = createRequire(import.meta.url);
-    const pkg = require("../package.json") as { version: string };
-    console.log(pkg.version);
+    console.log(await resolveVersion());
     return;
   }
 
